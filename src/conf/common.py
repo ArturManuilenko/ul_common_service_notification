@@ -1,0 +1,4 @@
+import os
+
+
+NOTIFICATION__SYS_USER_ID = os.environ['NOTIFICATION__SYS_USER_ID']

@@ -1,0 +1,101 @@
+version: "3.8"
+
+
+volumes:
+  notification_db_volume:
+  rabbitmq_data:
+
+
+x-default-config: &default-config
+    API_VERSION: "v1"
+    APPLICATION_ENV: APPLICATION_ENV_VALUE
+    APPLICATION_RELOAD: 0
+    NOTIFICATION__MAIL_SERVER: "mailbe04.hoster.by"
+    NOTIFICATION__MAIL_USERNAME: "no-reply@neroelectronics.com@mailbe04.hoster.by"
+    NOTIFICATION__MAIL_PASSWORD: "zb4QRnkjNixUtSs"
+    NOTIFICATION__MAIL_PORT: 2525
+    NOTIFICATION__AMQP_BROKER__URI: "amqp://admin:admin@notification__broker__amqp:5672"
+    NOTIFICATION__DB_URI: "postgresql://admin:admin@notification__db:5432/notification_db"
+    NOTIFICATION__SYS_USER_ID: "6ff8eaba-b5b4-49b2-9a83-f48fcdf6d361"
+    JWT_PUBLIC_KEY: 'LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUFvdSs5OGtoM3A2dURTZHZURW5ZVApyNVBSTHJzQ3JVRFRVWU1LanFPTGFTbnFWMmRuWjZLNDhERnhHWFJUcVoycXkyWmpTam5EdmJWazRUeWlhQTZkCjUwbTYvZzQ1OGxFN2ZxYjZtV0d6ajNpVW5HZm5yV2ZsT1VDQnhuMy9pYkRqbUExb21YbkFvdVV0QUtRQ0tvSTYKS2VGc2pvaWVSTzNVYVdNYnYwc0RheUtjOEFOUUFWOGFBY1Z6RTdtNjJYc2xUMHJ2TzBEQnByMHp0dFFXVkc0dApXYWZMbGhhdm43WFdxMzVpQWE5L1A0Rm45SUhOUkRMTHVGODc3SjN2c0NFOUxEdUxCS1Fkd0dZQ3ViNGpqRzVDCjR1RjlhTWoxa1pKSzAzWWVaVTVZZnBKSC9oOUV6MEFKRzI2ZTNMTWltQlBGT3NINUdjSXBFWGVFMCtXd3oxT1AKZVJzZXZ3Qzh4bWNPdEM2QkI1TkRNcS9nRmcvUitlVnpTYjBNUVJVRTgyYlJweTRhcmhwazllK3dBWDQ2TzgxNQpxa0VXQk8xSHJNajVpNmRIL2w2aDFONUVhZ0tLZXFBbU10YXorbDNxMzYwMThEY2V0dTNkZzV2Q3lBOGpRbVNFCm1TZ2tsL3pianV2QkNvS1k5Z0xBdzJRUDY3VDRCb0pOdUg3b25mL0RRa01yQTBuaCt6VWhROHdJNy9DemFDRWEKa0EvczVFemtLVFZqcXhTRXl2RGZqZUNlaHc2S01kbFl1YTVzS1Q5cXdrRDNxSnc3STZQK2hHd3padXNnQ1AvSQp0L1JDcTN5cG9LZjd1TWJ4WVJUU3ovaVhsaUh1a3VQRlh3T0Y5MTlBWWhSUFlRWlZjeG05WGVJOG9xYk92OG9sCm5sTGE5US9YWkxlSEtMWG05ZEU5VzJNQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=='
+
+services:
+  notification__balancer:
+    image: WERF_NOTIFICATION__BALANCER_DOCKER_IMAGE_NAME
+    ports:
+      - 6001:6001   # notification__db
+      - 32727:32727 # notification__broker
+      - 32726:32726 # notification__broker_ui
+      - 32714:32714 # notification__api
+      - 32756:32756 # notification__web
+      - 8080:8080
+    depends_on:
+      - notification__api
+      - notification__db
+      - notification__broker__amqp
+    command: [ nginx-debug, '-g', 'daemon off;' ]
+
+  notification__db:
+    image: library/postgres:13.2-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: notification_db
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    expose:
+      - 5432
+    volumes:
+      - notification_db_volume:/var/lib/postgresql
+
+  manager__notification__db:
+    image: WERF_NOTIFICATION__COMMON_PYTHON_DOCKER_IMAGE_NAME
+    environment:
+      NOTIFICATION__SYS_USER_ID: "6ff8eaba-b5b4-49b2-9a83-f48fcdf6d361"
+      NOTIFICATION__DB_URI: "postgresql://admin:admin@notification__db:5432/notification_db"
+    depends_on:
+      - notification__db
+    command: "echo 'DO NOTHING'"
+
+  notification__api:
+    image: WERF_NOTIFICATION__COMMON_PYTHON_DOCKER_IMAGE_NAME
+    restart: always
+    environment:
+      APPLICATION_PORT: 5500
+      <<: *default-config
+    command: "bash /docker_app/src/notification__api/bin-start.sh"
+    expose:
+      - 5500
+
+  notification__web:
+    image: WERF_NOTIFICATION__COMMON_PYTHON_DOCKER_IMAGE_NAME
+    restart: always
+    environment:
+      APPLICATION_PORT: 5000
+      INTERNAL_API_ENDPOINT: "http://notification__api:5500"
+      <<: *default-config
+    command: "/docker_app/src/notification__web/bin-start.sh"
+    expose:
+      - 5000
+
+  notification__broker__amqp:
+    image: rabbitmq:3.9.8-management
+    expose:
+      - 15672
+      - 5672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitm
+    container_name: "notification__amqp"
+
+  notification__email_worker:
+    image: WERF_NOTIFICATION__COMMON_PYTHON_DOCKER_IMAGE_NAME
+    restart: always
+    environment:
+      WORKER_NAME: "notification_input"
+      <<: *default-config
+    depends_on:
+      - notification__broker__amqp
+    command: "/docker_app/src/notification__uni_worker/bin-start.sh"

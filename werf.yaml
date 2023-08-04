@@ -1,0 +1,10 @@
+configVersion: 1
+project: piinotificationsprojectregistry
+
+---
+image: notification__common_python
+dockerfile: srv/common-python/Dockerfile
+---
+
+image: notification__balancer
+dockerfile: src/notification__balancer/Dockerfile

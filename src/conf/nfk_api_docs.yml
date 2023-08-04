@@ -1,0 +1,169 @@
+openapi: 3.0.1
+info:
+  title: NFK API
+  description: Generated at 12/10/2021 09:05:51. This is the swagger 
+    ui based on the open api 3.0 specification of the NFK API
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+servers:
+  - url: /
+paths:
+  '/api/v1/specification':
+    get:
+      tags:
+      - api_specification
+      operationId: 'api.get_docs'
+  '/api/v1/permissions':
+    get:
+      tags:
+      - api_get_permissions
+      operationId: 'api.pr_get_permissions'
+  '/api/v1/templates':
+    get:
+      tags:
+      - api_get_templates
+      operationId: 'api.nfk_get_templates_list'
+    post:
+      tags:
+      - api_get_templates
+      operationId: 'api.nfk_mk_template'
+      requestBody:
+        required: True
+        content:
+           application/json:
+               schema:
+                   $ref: '#/components/schemas/api.nfk_mk_template_request_body_schema'
+  '/api/v1/logs':
+    get:
+      tags:
+      - api_get_logs
+      operationId: 'api.nfk_get_logs_list'
+  '/api/v1/templates/<uuid:template_id>/emails':
+    post:
+      tags:
+      - api_send_message
+      operationId: 'api.nfk_mk_message_email'
+      requestBody:
+        required: True
+        content:
+           application/json:
+               schema:
+                   $ref: '#/components/schemas/api.nfk_mk_message_email_request_body_schema'
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          type: uuid
+        description: None
+        required: True
+  '/api/v1/templates/<uuid:template_id>':
+    get:
+      tags:
+      - api_get_templates
+      operationId: 'api.nfk_get_template'
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          type: uuid
+        description: None
+        required: True
+    put:
+      tags:
+      - api_get_templates
+      operationId: 'api.nfk_mod_template'
+      requestBody:
+        required: True
+        content:
+           application/json:
+               schema:
+                   $ref: '#/components/schemas/api.nfk_mod_template_request_body_schema'
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          type: uuid
+        description: None
+        required: True
+    delete:
+      tags:
+      - api_get_templates
+      operationId: 'api.nfk_del_template'
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          type: uuid
+        description: None
+        required: True
+  '/api/v1/logs/<uuid:log_id>':
+    get:
+      tags:
+      - api_get_logs
+      operationId: 'api.nfk_get_log'
+      parameters:
+      - in: path
+        name: log_id
+        schema:
+          type: uuid
+        description: None
+        required: True
+components:
+  requestBodies:
+    api.nfk_mk_template_request_body:
+      description: None
+      required: True
+      content:
+         application/json:
+             schema:
+                 $ref: '#/components/schemas/api.nfk_mk_template_request_body_schema'
+    api.nfk_mk_message_email_request_body:
+      description: None
+      required: True
+      content:
+         application/json:
+             schema:
+                 $ref: '#/components/schemas/api.nfk_mk_message_email_request_body_schema'
+    api.nfk_mod_template_request_body:
+      description: None
+      required: True
+      content:
+         application/json:
+             schema:
+                 $ref: '#/components/schemas/api.nfk_mod_template_request_body_schema'
+  schemas:
+    api.nfk_mk_template_request_body_schema:
+      type: object
+      properties:
+        name:
+          {'title': 'Name', 'type': 'string'}
+        content:
+          {'title': 'Content', 'type': 'string'}
+        type:
+          {'$ref': '#/definitions/TemplateType'}
+        input_data_json_schema:
+          {'title': 'Input Data Json Schema', 'type': 'object'}
+        default_data:
+          {'title': 'Default Data', 'type': 'object'}
+    api.nfk_mk_message_email_request_body_schema:
+      type: object
+      properties:
+        template_data:
+          {'title': 'Template Data', 'type': 'object'}
+        email_to:
+          {'title': 'Email To', 'type': 'string'}
+    api.nfk_mod_template_request_body_schema:
+      type: object
+      properties:
+        name:
+          {'title': 'Name', 'type': 'string'}
+        content:
+          {'title': 'Content', 'type': 'string'}
+        type:
+          {'$ref': '#/definitions/TemplateType'}
+        input_data_json_schema:
+          {'title': 'Input Data Json Schema', 'type': 'object'}
+        default_data:
+          {'title': 'Default Data', 'type': 'object'}

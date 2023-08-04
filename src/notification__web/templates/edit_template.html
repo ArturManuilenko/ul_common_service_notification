@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<main id="app" role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 mt-3" id="devices"
+      xmlns:v-on="http://www.w3.org/1999/xhtml">
+      <div class="container-fluid pr-0 pl-0 m-4" style="padding-bottom: 20px">
+        <div class="row">
+            <div class="col-xl-5">
+                <h2>
+                    <i class="bi bi-grid-3x3-gap"></i>
+                  {{ title }}
+                </h2>
+            </div>
+        </div>
+      </div>
+
+
+      <form method="POST" id="form_network_device" action="{{ url_for('view_edit_template', id_template=data.id) }}">
+        <div class="container-fluid" >
+          <div class="col-5">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Name:</span>
+              <input type="text" name="name" id="name" class="form-control" value="{{ data.name }}">
+            </div>
+            <div class="form-group">
+              <label for="content">Content(HTML)</label>
+              <textarea class="form-control" id="content" name="content" rows="3">{{ data.template_content.content }}</textarea>
+            </div>
+            <div class="input-group mb-3">
+              <span class="input-group-text">Type</span>
+              <select class="form-control" id="type_template" name="type_template">
+                  <option value="JINJA2" selected>JINJA2</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="input_data_json_schema">input_data_json_schema</label>
+              <textarea class="form-control" id="input_data_json_schema" name="input_data_json_schema" rows="6">{{ input_data_json_schema }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="default_data">default_data</label>
+              <textarea class="form-control" id="default_data" name="default_data" rows="6">{{ data.template_content.default_data }}</textarea>
+            </div>
+          </div>
+          <div class="row col-4" style="margin-top:10px; padding: 5px">
+          <div class="col-12 text-center align-self-center">
+            <button type="submit" class="btn btn-success">Save template</button>
+          </div>
+        </div>
+      </form>
+
+
+</main>
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+function getJson() {
+  try {
+    return JSON.parse($('#input_data_json_schema').val());
+  } catch (ex) {
+    alert('Wrong JSON Format: ' + ex);
+  }
+}
+
+</script>
+{% endblock %}

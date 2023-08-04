@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 mt-3" id="devices">
+    <div class="container-fluid pr-0 pl-0 m-4">
+        <div class="row">
+            <div class="col-xl-6">
+                <h2>
+                    <i class="bi bi-grid-3x3-gap"></i>
+                  {{ title }}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 section mb-4" style="padding-top:20px;">
+        <table class="table table-striped table-sm table-bordered">
+            <thead>
+            <tr>
+                <th colspan="2" style="text-align: center; background: #32CD32;">TEMPLATE DETAIL</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ data.id }}</td>
+            </tr>
+            <tr>
+                <th>current_content</th>
+                <td>{{ data.current_content }}</td>
+            </tr>
+            <tr>
+                <th>name</th>
+                <td>{{ data.name }}</td>
+            </tr>
+
+             <tr>
+              <th>is_alive</th>
+              {% if not bCat2 %}
+              <td>True</td>
+              {% else %}
+              <td>False</td>
+              {% endif %}
+
+            </tr>
+            <tr>
+                <th>date_created</th>
+                <td>{{ data.date_created }}</td>
+            </tr>
+            <tr>
+                <th>date_modified</th>
+                <td>{{ data.date_modified }}</td>
+            </tr>
+            <tr>
+                <th>user_created</th>
+                <td>{{ data.user_created_id }}</td>
+            </tr>
+            <tr>
+                <th>user_modified</th>
+                <td>{{ data.user_modified_id }}</td>
+            </tr>
+
+            </tbody>
+
+        </table>
+    </div>
+
+    <div class="col-6 section mb-4" style="padding-top:20px;">
+        <table class="table table-striped table-sm table-bordered">
+            <thead>
+            <tr>
+                <th colspan="2" style="text-align: center; background: #32CD32;">TEMPLATE CONTENT</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th>Content</th>
+                <td>{{ data.template_content.content }}</td>
+            </tr>
+            <tr>
+                <th>input_data_json_schema</th>
+                <td>{{ data.template_content.input_data_json_schema }}</td>
+            </tr>
+            <tr>
+                <th>default_data</th>
+                <td>{{ data.template_content.default_data }}</td>
+            </tr>
+            <tr>
+                <th>type</th>
+                <td>{{ data.template_content.type }}</td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</main>
+
+
+
+{% endblock %}

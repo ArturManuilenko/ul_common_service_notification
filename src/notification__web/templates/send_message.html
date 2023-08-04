@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<main id="app" role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 mt-3" id="devices"
+      xmlns:v-on="http://www.w3.org/1999/xhtml">
+      <div class="container-fluid pr-0 pl-0 m-4" style="padding-bottom: 20px">
+        <div class="row">
+            <div class="col-xl-5">
+                <h2>
+                    <i class="bi bi-grid-3x3-gap"></i>
+                  {{ title }}
+                </h2>
+            </div>
+        </div>
+      </div>
+      <div class="container-fluid" >
+        <div class="col-5">
+          <form action="" method="post">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Template</span>
+              <select class="form-control" id="template" name="template">
+                  <option value="input">input</option>
+                  <option value="output">output</option>
+              </select>
+            </div>
+            <div class="input-group mb-3">
+              <span class="input-group-text">Email to:</span>
+              <input type="email" class="form-control" id="email" name="email">
+            </div>
+            <div class="input-group mb-3" id="generate_template">
+
+            </div>
+          </form>
+        </div>
+        <div>
+
+        </div>
+      </div>
+
+
+
+
+
+</main>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<!--  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>-->
+  <script type="text/javascript" src="{{ url_for('static', filename='js/underscore.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jsv.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jsonform.js') }}"></script>
+  <script type="text/javascript">
+
+    (() => {
+      let $tpl = $('#template')
+
+      fetch('/templates-select').then(function (response) {
+          response.json().then(function (data) {
+            let optionHTML = '';
+            if (data.payload.length > 0) {
+              optionHTML += '<option disabled selected>Выберите шаблон</option>';
+              for (let template of data.payload) {
+                optionHTML += '<option value="' + template.id + '">' + template.name + '</option>';
+              }
+              $tpl.html(optionHTML);
+            }
+            else {
+              $tpl.html('<option disabled selected>None</option>');
+            }
+          });
+        });
+
+
+      $tpl.on("change", function () {
+        const  template_id = $tpl.val();
+        if (template_id === 'None') {
+          return
+        }
+        fetch('/templates-select/' + template_id).then(function (response) {
+          response.json().then(function (data) {
+            var val = data.payload.template_content.input_data_json_schema
+            $('#generate_template').empty()
+            $('#generate_template').jsonForm({
+              schema: val
+              });
+          });
+        });
+      })
+    })()
+
+  </script>
+
+
+{% endblock %}
